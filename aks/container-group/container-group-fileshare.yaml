@@ -1,0 +1,33 @@
+apiVersion: '2019-12-01'
+location: eastus
+name: aclab-fsshare-demo
+properties:
+  containers:
+  - name: hellofiles
+    properties:
+      environmentVariables: []
+      image: mcr.microsoft.com/azuredocs/aci-hellofiles
+      ports:
+      - port: 80
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGB: 1.5
+      volumeMounts:
+      - mountPath: /aci/logs/
+        name: filesharevolume
+  osType: Linux
+  restartPolicy: Always
+  ipAddress:
+    type: Public
+    ports:
+      - port: 80
+    dnsNameLabel: aclab-fsshare-demo
+  volumes:
+  - name: filesharevolume
+    azureFile:
+      sharename: acishare
+      storageAccountName: aclabstg20398
+      storageAccountKey: NdXL2rZBsRsUPfWqd1Y0+oi9LkMgdH5gUmwunSSqKfqB5QmDQ2Py3B2JzFovZOPMmeNZ/16TSg8I+AStmvGTfw==
+tags: {}
+type: Microsoft.ContainerInstance/containerGroups

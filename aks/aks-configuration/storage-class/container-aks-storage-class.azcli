@@ -1,0 +1,30 @@
+export AZURE_SUBSCRIPTION_ID=be637f67-2af9-4b7b-be2f-18da9b2968cb
+export AZURE_RESOURCE_GROUP=azlab-aks-rg
+export AZURE_REGION=eastus
+export AKS_CLUSTER_NAME=azlabaks01
+
+az account set -s $AZURE_SUBSCRIPTION_ID
+az group create -l $AZURE_REGION -n $AZURE_RESOURCE_GROUP
+
+az aks create --resource-group $AZURE_RESOURCE_GROUP --name $AKS_CLUSTER_NAME \
+    --node-count 1 --node-vm-size Standard_B2s --node-osdisk-size 30 \
+    --generate-ssh-keys
+
+az aks show --name $AKS_CLUSTER_NAME --resource-group $AZURE_RESOURCE_GROUP
+az aks get-credentials --resource-group $AZURE_RESOURCE_GROUP --name $AKS_CLUSTER_NAME
+
+
+# https://learn.microsoft.com/en-gb/azure/aks/command-invoke
+az aks command invoke \
+  --resource-group $AZURE_RESOURCE_GROUP \
+  --name $AKS_CLUSTER_NAME \
+  --command "kubectl get pods"
+
+
+kubectl apply -f container-aks-storage-class.yaml
+kubectl get sc
+
+kubectl apply -f container-aks-storage-class-pvc.yaml
+kubectl get pvc/app-pvc
+
+kubectl apply -f container-aks-storage-class-deploy.yaml

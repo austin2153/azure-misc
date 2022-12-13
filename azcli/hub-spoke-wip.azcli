@@ -1,0 +1,24 @@
+# https://mwesterink.wordpress.com/2019/05/24/lets-get-lazy-deploy-a-hub-and-spoke-network-topology-using-azure-cli/
+
+az group create --name aclab-hubspoke-rg --location eastus
+
+az network vnet create --resource-group aclab-hubspoke-rg --name CLIHUB1 --address-prefixes 10.11.0.0/16 --dns-servers 10.11.1.4 10.11.1.5
+az network vnet create --resource-group aclab-hubspoke-rg --name CLISPOKE1 --address-prefixes 10.12.0.0/16 --dns-servers 10.11.1.4 10.11.1.5
+az network vnet create --resource-group aclab-hubspoke-rg --name CLISPOKE2 --address-prefixes 10.13.0.0/16 --dns-servers 10.11.1.4 10.11.1.5
+
+az network vnet subnet create --resource-group aclab-hubspoke-rg --vnet-name CLIHUB1 --name Management --address-prefix 10.11.1.0/24
+az network vnet subnet create --resource-group aclab-hubspoke-rg --vnet-name CLIHUB1 --name GatewaySubnet --address-prefix 10.11.254.0/27
+
+az network vnet subnet create --resource-group aclab-hubspoke-rg --vnet-name CLISPOKE1 --name Management --address-prefix 10.12.1.0/24
+az network vnet subnet create --resource-group aclab-hubspoke-rg --vnet-name CLISPOKE1 --name Workload --address-prefix 10.12.2.0/24
+
+az network vnet subnet create --resource-group aclab-hubspoke-rg --vnet-name CLISPOKE2 --name Management --address-prefix 10.13.1.0/24
+az network vnet subnet create --resource-group aclab-hubspoke-rg --vnet-name CLISPOKE2 --name Workload --address-prefix 10.13.2.0/24
+
+az network public-ip create --resource-group aclab-hubspoke-rg --name aclab-hubspoke-publicip --allocation-method dynamic --dns-name hubspokecli
+az network vnet-gateway create --resource-group aclab-hubspoke-rg --name aclab-hubspoke-gw --vnet CLIHUB1 --public-ip-address aclab-hubspoke-rg --gateway-type vpn --vpn-type RouteBased --client-protocol SSTP --sku Standard
+
+az network vnet peering create --resource-group aclab-hubspoke-rg --name HUB1toSPOKE1 --vnet-name CLIHUB1 --remote-vnet CLISPOKE1 --allow-forwarded-traffic --allow-vnet-access --allow-gateway-transit
+az network vnet peering create --resource-group aclab-hubspoke-rg --name SPOKE1toHUB1 --vnet-name CLISPOKE1 --remote-vnet CLIHUB1 --allow-forwarded-traffic --allow-vnet-access --use-remote-gateways
+az network vnet peering create --resource-group aclab-hubspoke-rg --name HUB1toSPOKE2 --vnet-name CLIHUB1 --remote-vnet CLISPOKE2 --allow-forwarded-traffic --allow-vnet-access --allow-gateway-transit
+az network vnet peering create --resource-group aclab-hubspoke-rg --name SPOKE2toHUB1 --vnet-name CLISPOKE2 --remote-vnet CLIHUB1 --allow-forwarded-traffic --allow-vnet-access --use-remote-gateways

@@ -1,0 +1,15 @@
+# login
+az login
+
+# connect to container registry
+az acr login --name aclabcontainerreg01
+
+# tag image 
+docker tag docker101tutorial aclabcontainerreg01.azurecr.io/docker101tutorial
+
+# push image onto azure container registry
+docker push aclabcontainerreg01.azurecr.io/docker101tutorial
+
+# create a container group with a .yml file
+az container create --resource-group aclab-container-rg \
+    --file container-group-deploy.yml

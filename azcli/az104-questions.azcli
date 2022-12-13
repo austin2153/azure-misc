@@ -1,0 +1,90 @@
+az login
+
+# STGEQ11
+
+# get secondary key and set it on the app service
+$key = (az storage account keys list --resource-group ac-storage-test \
+  --account-name actest2153 --query [1].value)
+az webapp config appsettings set --resource-group ac-monitor-design-rg \
+  --name ac-testdevapp-01 --settings STORAGE_ACCOUNT_KEY=$key
+
+# renew the primary key on the storage account
+az storage account keys renew --resource-group ac-storage-test \
+  --account-name actest2153 --key primary
+
+# get the primary key and set it on the app service
+$key = (az storage account keys list --resource-group ac-storage-test \
+  --account-name actest2153 --query [0].value)
+az webapp config appsettings set --resource-group ac-monitor-design-rg \
+  --name ac-testdevapp-01 --settings STORAGE_ACCOUNT_KEY=$key
+
+# renew the secondary key
+az storage account keys renew --resource-group ac-storage-test \
+  --account-name actest2153 --key secondary
+
+# CMPQ14
+
+# Create a deployment from a remote template file, using parameters from a local JSON file.
+az group deployment create -g MyResourceGroup --template-uri https://myresource/azuredeploy.json \
+  --parameters @myparameters.json
+
+# CMP42
+
+az vm create \
+  --resource-group "aclabvms-rg" \
+  --name "aclablinvm01" \
+  --image "Canonical:UbuntuServer:16.04-LTS:latest" \
+  --size "Standard_D2S_V3"\
+  --generate-ssh-keys
+
+az keyvault create --name "aclabencrypt01" --resource-group "aclabvms-rg" \
+  --location "eastus" --enabled-for-disk-encryption
+
+# Encrypt your VM with az vm encryption, providing your 
+# unique Key Vault name to the --disk-encryption-keyvault parameter.
+az vm encryption enable -g "aclabvms-rg" --name "aclablinvm01" \
+  --disk-encryption-keyvault "aclabencrypt01"
+
+# Please use 'show' command to monitor the progress.". The "show" command is az vm show.
+az vm encryption show --name "aclablinvm01" -g "aclabvms-rg"
+
+# Cleanup
+az group delete --name "aclabvms-rg"
+
+# CMP42
+az provider show -n Microsoft.OperationsManagement -o table
+az provider show -n Microsoft.OperationalInsights -o table
+
+# Assign values to variables
+loc="eastus"
+rg="aclab-aks-rg"
+clname="aclabaks01"
+
+# create resource group
+az group create --name $rg --location $loc
+
+# Create an AKS cluster using the az aks create command with the --enable-addons monitoring and 
+# --enable-msi-auth-for-monitoring parameter to enable Azure Monitor Container insights with managed 
+# identity authentication (preview). 
+az aks create -g $rg -n $clname --enable-managed-identity \
+--node-count 1 --enable-addons monitoring --enable-msi-auth-for-monitoring  --generate-ssh-keys
+
+sudo az aks install-cli
+
+# Downloading client to "/usr/local/bin/kubectl" from "https://storage.googleapis.com/kubernetes-release/release/v1.25.1/bin/darwin/amd64/kubectl"
+# Please ensure that /usr/local/bin is in your search PATH, so the `kubectl` command can be found.
+# Downloading client to "/tmp/tmp4kk9ocqv/kubelogin.zip" from "https://github.com/Azure/kubelogin/releases/download/v0.0.20/kubelogin.zip"
+# Please ensure that /usr/local/bin is in your search PATH, so the `kubelogin` command can be found.
+
+# deploy a container with a yaml file
+az container create --resource-group aclab-container-eg --file appdeployment.yml
+
+# MON12
+
+az monitor metrics alert create `
+--name "avg cpu greater then 50" `
+--resource-group DefaultResourceGroup-EUS `
+--condition "avg Percentage CPU > 50" `
+--window-size 10m `
+--action aclab-action-group `
+--scopes {VirtualMachineID}

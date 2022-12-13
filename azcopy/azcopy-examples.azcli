@@ -1,0 +1,68 @@
+# To authenticate with AzCopy using Azure AD
+azcopy login
+
+
+# To authenticate with AzCopy using a SAS token you can use this command as an example
+azcopy cp "C:\local\path" "https://account.blob.core.windows.net/mycontainer1/?sv=2018-03-28&amp;ss=bjqt&amp;srt=sco&amp;sp=rwddgcup&amp;se=2019-05-01T05:01:17Z&amp;st=2019-04-30T21:01:17Z&amp;spr=https&amp;sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" --recursive=true
+
+
+BlobEndpoint=https://actest2153.blob.core.windows.net/;QueueEndpoint=https://actest2153.queue.core.windows.net/;FileEndpoint=https://actest2153.file.core.windows.net/;TableEndpoint=https://actest2153.table.core.windows.net/;SharedAccessSignature=sv=2021-06-08&ss=b&srt=sco&sp=rwdlacy&se=2022-09-08T02:46:13Z&st=2022-09-07T18:46:13Z&spr=https&sig=v8FQijxdOZy%2Ft4ACXmhNIhzAc7%2B3L%2FXeig4xQMyBmUk%3D
+?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacy&se=2022-09-08T02:46:13Z&st=2022-09-07T18:46:13Z&spr=https&sig=v8FQijxdOZy%2Ft4ACXmhNIhzAc7%2B3L%2FXeig4xQMyBmUk%3D
+https://actest2153.blob.core.windows.net/?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacy&se=2022-09-08T02:46:13Z&st=2022-09-07T18:46:13Z&spr=https&sig=v8FQijxdOZy%2Ft4ACXmhNIhzAc7%2B3L%2FXeig4xQMyBmUk%3D
+
+
+# 1. To create a container
+azcopy make "https://appstore4040.blob.core.windows.net/tmp?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+
+# 2. To upload a file
+azcopy copy storage1.arm.json "https://appstore4040.blob.core.windows.net/tmp/storage1.arm.json?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+
+# 3. To upload a directory
+azcopy copy "newdir/*" "https://appstore4040.blob.core.windows.net/tmp?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+
+# 4. To upload a directory to a directory in the container
+azcopy copy "newdir/*" "https://appstore4040.blob.core.windows.net/tmp/newdir?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D"
+
+
+# 5. To upload a directory and subdirectories to a directory in the container
+azcopy copy "newdir/*" "https://appstore4040.blob.core.windows.net/tmp/newdir?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D" --recursive
+
+
+# 6. Download blob data
+azcopy copy "https://appstore4040.blob.core.windows.net/tmp/storage1.arm.json?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D" "storage1.arm.json"
+
+
+# 7. copy data between two storage accounts
+azcopy copy "https://appstore4040.blob.core.windows.net/tmp?sv=2020-08-04&ss=b&srt=sco&sp=rwdlac&se=2021-12-13T14:36:11Z&st=2021-12-13T06:36:11Z&spr=https&sig=RtWuKGVi%2BTp1yW1VNAqgSFMmFtrRrEsQ9f%2BJy7LuIZU%3D" "https://azcopydestination100034.blob.core.windows.net/tmp?sv=2020-02-10&ss=b&srt=sco&sp=rwlac&se=2021-04-12T22:26:24Z&st=2021-04-12T14:26:24Z&spr=https&sig=TMv5LmpR0RKwpg%2B8F19Q1aLNlKUyn36%2B0B5qqu5fGok%3D" --recursive
+
+# ------------------------------------------------------------------
+
+BlobEndpoint=https://actest2153.blob.core.windows.net/;QueueEndpoint=https://actest2153.queue.core.windows.net/;FileEndpoint=https://actest2153.file.core.windows.net/;TableEndpoint=https://actest2153.table.core.windows.net/;SharedAccessSignature=sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D
+
+?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D
+
+https://actest2153.blob.core.windows.net/?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D
+
+# 1. To create a container
+azcopy make "https://actest2153.blob.core.windows.net/tmp?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D"
+
+# 2. To upload a file
+azcopy copy azcopy-install.ps1 "https://actest2153.blob.core.windows.net/tmp/azcopy-install.ps1?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D"
+
+# 3. To upload all files in a directory
+azcopy copy "tmpdir/*" "https://actest2153.blob.core.windows.net/tmp?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D"
+
+# 4. To upload a directory to a directory in the container
+azcopy copy "tmpdir/*" "https://actest2153.blob.core.windows.net/tmp/tmpdir?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D"
+
+# 5. To upload a directory and subdirectories to a directory in the container
+azcopy copy "tmpdir/*" "https://actest2153.blob.core.windows.net/tmp/tmpdir?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D" --recursive
+
+# 6. copy data between two storage accounts
+azcopy copy "https://actest2153.blob.core.windows.net/tmp?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D" "https://acstorage2153.blob.core.windows.net/tmp?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacy&se=2022-09-08T06:31:53Z&st=2022-09-07T22:31:53Z&spr=https&sig=pV5RQ63rAJAVlTmgAeLdsLhYHqhZt3%2BLpPH4wW8DQIM%3D" --recursive
+
+# 7. Download blob data
+azcopy copy "https://actest2153.blob.core.windows.net/tmp/azcopy-install.ps1?sv=2021-06-08&ss=b&srt=sco&sp=rwdlacyx&se=2022-09-08T04:59:09Z&st=2022-09-07T20:59:09Z&spr=https&sig=d2Od4XCOFSdN9sEqzMxsJjMb%2BZ2gP0eRuZesF4lPYx0%3D" "azcopy-install.ps1"

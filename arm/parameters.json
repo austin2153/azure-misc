@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_aclabvnet01_name": {
+            "type": "string",
+            "defaultValue": "Contoso"
+        },
+        "virtualNetworks_aclabvnet02_name": {
+            "value": null
+        },
+        "virtualMachines_aclablinvm01_name": {
+            "value": null
+        },
+        "virtualMachines_aclablinvm02_name": {
+            "value": null
+        },
+        "networkSecurityGroups_aclabnsg_name": {
+            "value": null
+        },
+        "networkInterfaces_aclablinvm01VMNic_name": {
+            "value": null
+        },
+        "networkInterfaces_aclablinvm02VMNic_name": {
+            "value": null
+        },
+        "publicIPAddresses_aclablinvm01PublicIP_name": {
+            "value": null
+        },
+        "publicIPAddresses_aclablinvm02PublicIP_name": {
+            "value": null
+        },
+        "disks_aclablinvm01_disk1_1b8a60cabe5e4c2fbbbc9711012cb73d_externalid": {
+            "value": null
+        },
+        "disks_aclablinvm02_disk1_a175e93694e54a7dbd8e7f9bd1bc34fc_externalid": {
+            "value": null
+        }
+    }
+}

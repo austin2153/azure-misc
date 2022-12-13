@@ -1,0 +1,23 @@
+{
+    "properties": {
+        "displayName": "Deny JIT requests with source Any",
+        "description": "Deny Just In Time (JIT) requests with Any as the source address prefix.",
+        "mode": "All",
+        "metadata": {
+            "version": "0.1.0",
+            "category": "categoryName",
+            "preview": true
+        },
+        "parameters": {
+                <parameters>
+        },
+        "policyRule": {
+            "if": {
+                <rule>
+            },
+            "then": {
+                "effect": "<effect>"
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+az login
+
+az provider show -n Microsoft.OperationsManagement -o table
+az provider show -n Microsoft.OperationalInsights -o table
+
+# ---------------
+
+RESOURCE_GROUP='az104-09c-rg1'
+AKS_CLUSTER='az104-9c-aks1'
+az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER
+
+# ---------------
+
+RESOURCE_GROUP='az104-09c-rg1'
+AKS_CLUSTER='az104-9c-aks1'
+az aks scale --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --node-count 2
+
+# ---------------
+
+az group list --query "[?starts_with(name,'az104-09c')].name" --output tsv
+
+
+4002b4d83713f5b

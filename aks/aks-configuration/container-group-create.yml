@@ -1,0 +1,25 @@
+apiVersion: 2019-12-01
+location: eastus
+name: aclabcontainergroup
+properties:
+  containers: 
+  - name: app
+    properties:
+      image: aclabcontainerreg01.azurecr.io/docker101tutorial:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+      ports:
+      - port: 3000   
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: 3000    
+  imageRegistryCredentials:
+    - server: aclabcontainerreg01.azurecr.io
+      username: aclabcontainerreg01
+      password: D/UV=/QgoNLFQTojsJbCMCaap+C3Sk+b
+type: Microsoft.ContainerInstance/containerGroups

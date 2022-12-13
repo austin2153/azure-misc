@@ -1,0 +1,13 @@
+# Lab - Azure Kubernetes - Configuring storage - Disks - Resources
+
+# 1. Ensure to first get the credentials of your cluster in Azure Cloud Shell
+az aks get-credentials --resource-group aclab-cont-rg --name democluster
+
+# 2. Get the resource group which holds the nodes of your Azure Kubernetes cluster
+az aks show --resource-group aclab-cont-rg --name democluster --query nodeResourceGroup -o tsv
+
+# 3. Then create a disk. Ensure to change the resource group details accordingly
+az disk create --resource-group MC_aclab-cont-rg_democluster_eastus --name clusterdisk --size-gb 20 --query id --output tsv
+
+4. Use the following app.yml file as a reference for the deployment of a pod with the use of the disk
+

@@ -1,0 +1,15 @@
+{
+  "Name": "Custom Role - RG Reader",
+  "Id": "f7fa81a4-01e6-5b4b-a3dd-b9dc129f4a83",
+  "IsCustom": true,
+  "Description": "Subscription Level Deployment of a Role Definition",
+  "Actions": [
+    "Microsoft.Resources/subscriptions/resourceGroups/read"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/be637f67-2af9-4b7b-be2f-18da9b2968cb"
+  ]
+}

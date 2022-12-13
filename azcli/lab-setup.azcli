@@ -1,0 +1,290 @@
+# links
+# https://learn.microsoft.com/en-us/cli/azure/use-cli-effectively?tabs=bash%2Cbash2
+# https://pascalnaber.wordpress.com/2020/01/10/collection-of-handy-azure-cli-and-bash-scripts/
+# https://github.com/Azure-Samples/azure-cli-samples
+# https://www.cyberciti.biz/faq/bash-for-loop-array/
+
+# Change to --vnet-name $vnetName1 --subnet $subnetName1 for cross vnet peering scenarios
+# VAR SETUP
+$grp="aclabtestrg"
+$location="eastus"
+$nsgName="aclabnsg"
+$vnetName="aclabvnet01"
+$vnetName1="aclabvnet02"
+$subnetName="subneta"
+$subnetName1="subnetb"
+$vmName="aclablinvm01"
+$vmName2="aclablinvm02"
+$vmName3="aclabwinvm03"
+$bastionName="aclabvnet01bastion"
+
+# CREATE RESOURCE GROUP
+az group create `
+--name $grp `
+--location $location
+
+# CREATE NSG
+az network nsg create `
+--resource-group $grp `
+--name $nsgName
+
+# ALLOW TCP 80 ON NSG
+az network nsg rule create `
+--resource-group $grp `
+--nsg-name $nsgName `
+--name allow-http `
+--protocol tcp `
+--priority 100 `
+--destination-port-range 80 `
+--access Allow
+
+# ALLOW TCP 22 ON NSG
+az network nsg rule create `
+--resource-group $grp `
+--nsg-name $nsgName `
+--name allow-ssh `
+--protocol tcp `
+--priority 101 `
+--destination-port-range 22 `
+--access Allow
+
+# CREATE VIRTUAL NETWORKS
+az network vnet create `
+--address-prefixes 10.0.0.0/16 `
+--name $vnetName `
+--resource-group $grp
+
+az network vnet create `
+--address-prefixes 192.0.0.0/16 `
+--name $vnetName1 `
+--resource-group $grp
+
+# CREATE SUBNETS
+az network vnet subnet create `
+-g $grp `
+--vnet-name $vnetName `
+-n $subnetName `
+--address-prefixes 10.0.0.0/24 `
+--network-security-group $nsgName
+
+az network vnet subnet create `
+-g $grp `
+--vnet-name $vnetName1 `
+-n $subnetName1 `
+--address-prefixes 192.0.0.0/24 `
+--network-security-group $nsgName'
+
+# CREATE VMs
+# Exclude public IP and NSG by using --public-ip-address '""', --nsg '""
+az vm create `
+--resource-group $grp `
+--name $vmName `
+--image UbuntuLTS `
+--size Standard_B1s `
+--nsg '""' `
+--vnet-name $vnetName `
+--subnet $subnetName `
+--public-ip-sku Standard `
+--admin-username austin `
+--admin-password Jackson1234#
+
+# Change to --vnet-name $vnetName1 --subnet $subnetName1 for cross vnet peering scenarios
+az vm create `
+--resource-group $grp `
+--name $vmName2 `
+--image UbuntuLTS `
+--size Standard_B1s `
+--nsg '""' `
+--vnet-name $vnetName `
+--subnet $subnetName `
+--public-ip-sku Standard `
+--admin-username austin `
+--admin-password Jackson1234#
+
+# INSTALL NGINX
+az vm run-command invoke `
+-g $grp `
+-n $vmName `
+--command-id RunShellScript `
+--scripts "sudo apt-get update && sudo apt-get install -y nginx"
+
+az vm run-command invoke `
+-g $grp `
+-n $vmName2 `
+--command-id RunShellScript `
+--scripts "sudo apt-get update && sudo apt-get install -y nginx"
+
+# INSTALL NETWORK WATCHER AGENT
+az vm extension set `
+--resource-group $grp `
+--vm-name $vmName `
+--name NetworkWatcherAgentLinux `
+--publisher Microsoft.Azure.NetworkWatcher `
+--version 1.4
+
+az vm extension set `
+--resource-group $grp `
+--vm-name $vmName2 `
+--name NetworkWatcherAgentLinux `
+--publisher Microsoft.Azure.NetworkWatcher `
+--version 1.4
+
+# GET PUBLIC IPS
+az vm show -d -g $grp -n $vmName --query publicIps -o tsv
+az vm show -d -g $grp -n $vmName2 --query publicIps -o tsv
+# az vm list-ip-addresses -g $grp -n $vmName
+# az vm list-ip-addresses -g $grp -n $vmName2
+
+# ------------------ OPTIONAL ------------------------------
+
+# ------- Build Windows Server ------- 
+# Build Windows Server - Build server
+az vm create `
+--resource-group $grp `
+--name $vmName3 `
+--image Win2022AzureEditionCore `
+--size Standard_B1s `
+--nsg '""' `
+--vnet-name $vnetName `
+--subnet $subnetName `
+--public-ip-sku Standard `
+--admin-username austin `
+--admin-password Jackson1234#
+
+# Build Windows Server - Install web server
+az vm run-command invoke `
+-g $grp `
+-n $vmName3 `
+--command-id RunPowerShellScript `
+--scripts "Install-WindowsFeature `
+-name Web-Server `
+-IncludeManagementTools"
+
+# Build Windows Server - Install Network Watcher Agent
+az vm extension set `
+--resource-group $grp `
+--vm-name $vmName3 `
+--name NetworkWatcherAgentWindows `
+--publisher Microsoft.Azure.NetworkWatcher `
+--version 1.4
+
+# az vm extension set `
+# --name AzureMonitorWindowsAgent `
+# --publisher Microsoft.Azure.Monitor `
+# --ids <vm-resource-id> `
+# --enable-auto-upgrade true `
+# --settings '{"authentication":{"managedIdentity":{"identifier-name":"mi_res_id","identifier-value":/subscriptions/<my-subscription-id>/resourceGroups/<my-resource-group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<my-user-assigned-identity>"}}}'
+
+# ------- CREATE A BASTION HOST -------
+#  https://learn.microsoft.com/en-us/azure/bastion/connect-native-client-windows
+
+# create a bastion subnet on aclabvnet01
+az network vnet subnet create `
+--vnet-name $vnetName `
+-n AzureBastionSubnet `
+-g $grp `
+--address-prefix 10.0.2.0/24
+
+# create a public ip for the bastion host
+az network public-ip create `
+--resource-group $grp `
+--name aclabvnet01bastionip `
+--sku Standard `
+--location $location
+
+# create bastion host
+az network bastion create `
+--name aclabvnet01bastion `
+--public-ip-address aclabvnet01bastionip `
+--resource-group $grp `
+--vnet-name $vnetName `
+--location $location
+
+# get vm id
+$id=az vm show -n $vmName -g $grp --query 'id' -o tsv
+
+# ssh to vm from local client (preview)
+az extension add --name ssh
+az network bastion ssh `
+--name aclabvnet01bastion `
+--resource-group $grp `
+--target-resource-id $id `
+--auth-type "password" `
+--username austin
+
+# ------- CREATE A VPN GATEWAY (SITE TO SITE). Takes 45mins! -------
+
+# create a "GatewaySubnet" - required for VPN
+az network vnet subnet create `
+--vnet-name $vnetName `
+-n GatewaySubnet `
+-g $grp `
+--address-prefix 10.0.3.0/24
+
+# create a local network gateway
+# The --gateway-ip-address is the IP address of your on-premises VPN device.
+# The --local-address-prefixes are your on-premises address spaces.
+az network local-gateway create `
+--gateway-ip-address 96.27.249.234 `
+--name local-gateway `
+--resource-group $grp `
+--local-address-prefixes 192.168.0.0/24
+
+# A VPN gateway must have a Public IP address. You first request the IP address
+# resource, and then refer to it when creating your virtual network gateway.
+az network public-ip create `
+--name vpn-gateway-ip `
+--resource-group $grp `
+--allocation-method Static `
+--sku Standard
+
+# Create the VNET Gateway
+az network vnet-gateway create `
+--name aclabvnetgw `
+--location $location
+--public-ip-address vpn-gateway-ip `
+--resource-group $grp `
+--vnet $vnetName `
+--gateway-type Vpn `
+--vpn-type RouteBased `
+--sku VpnGw2 `
+--no-wait `
+--client-protocol IkeV2 `
+--vpn-gateway-generation Generation2
+
+# ------- SETUP VNET PEERING (between $vnetName AND $vnetName1) -------
+az network vnet peering create `
+--resource-group $grp `
+--name aclabvnet01-to-aclabvnet02 `
+--vnet-name $vnetName `
+--remote-vnet $vnetName1 `
+--allow-vnet-access
+
+az network vnet peering create `
+--resource-group $grp `
+--name aclabvnet02-to-aclabvnet01 `
+--vnet-name $vnetName1 `
+--remote-vnet $vnetName `
+--allow-vnet-access
+
+# ------------------------------------------------------
+
+# CLEANUP
+az group delete --name $grp
+az group delete --name NetworkWatcherRG
+
+# ------------------------------------------------------
+
+# EDIT INDEX.HTML - SSH to machines and edit index.html
+# sudo su
+# sudo echo "<h1>aclablinvm03</h1>" > /var/www/html/index.nginx-debian.html
+# sudo echo "<h1>aclablinvm04</h1>" > /var/www/html/index.nginx-debian.html
+# sudo systemctl restart nginx
+# 192.0.0.4
+# 96.27.249.234
+
+
+# view private dns records
+# az network private-dns record-set list `
+#   -g $grp `
+#   -z campbellsite.info

@@ -1,0 +1,43 @@
+
+# apple m1 chip ARM issues w/ container images
+# You can see the architecture your image is built for with the command 
+# docker run <IMAGE> uname -m. If it echos back “aarch64”, you’ve got an image 
+# happily built targeting Apple Silicon. If you see “x86_64” instead, your image 
+# targets Intel chips and will run under emulation.
+
+docker run 4d4d08c25677 uname -m
+docker run 3a54a920bb6c uname -m
+
+# add platform to compose file
+https://stackoverflow.com/questions/65456814/docker-apple-silicon-m1-preview-mysql-no-matching-manifest-for-linux-arm64-v8
+
+# aks tutorial
+# https://learn.microsoft.com/en-us/azure/aks/tutorial-kubernetes-prepare-acr?tabs=azure-cli
+
+loc="eastus"
+rg="aclab-aks-rg"
+cregname="aclabcontainerreg"
+aksname="aclabaks01"
+
+az group create --name $rg --location $loc
+az acr create --resource-group $rg --name $cregname --sku Basic
+az acr check-health -n $cregname --yes
+az acr login --name $cregname
+az acr login -n $cregname --expose-token # cloud shell login
+az acr list --resource-group $rg --query "[].{acrLoginServer:loginServer}" --output table
+# aclabcontainerreg.azurecr.io
+docker tag mcr.microsoft.com/azuredocs/azure-vote-front:v1 aclabcontainerreg.azurecr.io/azure-vote-front:v1
+docker push aclabcontainerreg.azurecr.io/azure-vote-front:v1
+az acr repository list --name $cregname --output table
+az acr repository show-tags --name $cregname --repository azure-vote-front --output table
+az aks create \
+    --resource-group $rg \
+    --name $aksname \
+    --node-count 2 \
+    --generate-ssh-keys \
+    --attach-acr $cregname
+az aks get-credentials --resource-group $rg --name $aksname --overwrite-existing
+az aks list
+kubectl get nodes
+az acr list --resource-group $rg --query "[].{acrLoginServer:loginServer}" --output table
+# aclabcontainerreg.azurecr.io

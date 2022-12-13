@@ -1,0 +1,9 @@
+# Lab-Azure Kubernetes - Configuring storage - Azure File shares - Resources
+
+# 1. Set variables for the storage account name and the access key
+
+$AKS_STORAGE_ACCOUNT_NAME="actest2153"
+$STORAGE_KEY="3s4UrEXoCSB0TEp5kfuegvyX/6oEtKUHdiUKgZTBXrqzH/9NDZPmRJy0DwhDucAiMfbTM20tjLEs+ASt2HeOaw=="
+
+# 2. Then create a secret in the Kubernetes cluster
+kubectl create secret generic azure-secret --from-literal=azurestorageaccountname=$AKS_STORAGE_ACCOUNT_NAME --from-literal=azurestorageaccountkey=$STORAGE_KEY

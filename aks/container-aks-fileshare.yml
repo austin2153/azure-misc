@@ -1,0 +1,29 @@
+# 3. Use the following app.yml file as a reference for the deployment of a pod with the use of the file share
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app01
+  template:
+    metadata:
+      labels:
+        app: my-app01
+    spec:
+      containers:
+      - name: my-image01
+        volumeMounts:
+          - name: storage
+            mountPath: /mnt/share
+        image: nginx
+        ports:
+        - containerPort: 80
+      volumes:
+          - name: storage
+            azureFile:
+              secretName: azure-secret
+              shareName: data
+              readOnly: false

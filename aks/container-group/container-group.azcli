@@ -1,0 +1,26 @@
+export RG=aclab-container-rg
+export LOC=eastus
+export ACR=aclabace01
+export ACRSERVER=aclabace01.azurecr.io
+
+# aclabace01.azurecr.io
+az group create --name $RG --location $LOC
+az acr create --resource-group $RG --name $ACR --sku Basic
+az acr login --name $ACR
+az acr list --resource-group $RG --query "[].{acrLoginServer:loginServer}" --output table
+
+docker tag python-austin:latest aclabace01.azurecr.io/python-austin:1.0.0
+docker push aclabace01.azurecr.io/python-austin:1.0.0
+
+az container create --resource-group $RG --file container-group-custom.yaml
+az container create --resource-group $RG --file container-group-microsoft.yaml
+
+az container create \
+--resource-group $RG \
+--name python-austin \
+--registry-username aclabace01 \
+--registry-password /2uEJLo9JzF0htFy2GI6633+uTCa76Y/ \
+--image aclabace01.azurecr.io/python-austin:1.0.0 \
+--dns-name-label python-austin \
+--ports 4000
+

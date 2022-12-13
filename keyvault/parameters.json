@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "adminLogin": {
+        "value": "exampleadmin"
+      },
+      "adminPassword": {
+        "reference": {
+          "keyVault": {
+            "id": "/subscriptions/be637f67-2af9-4b7b-be2f-18da9b2968cb/resourceGroups/aclab-keyvault-arm/providers/Microsoft.KeyVault/vaults/aclab-vault-01"
+          },
+          "secretName": "ExamplePassword"
+        }
+      },
+      "sqlServerName": {
+        "value": "aclabsql01"
+      }
+    }
+  }

@@ -1,0 +1,27 @@
+{
+    "customerid": "C1",
+    "customername": "UserA",
+    "city": "Lansing"
+}
+{
+    "customerid":"C2",
+    "customername":"UserB",
+    "Orders":[
+        {"Orderid":"O1","Course":"AZ-104","Price":100}
+    ],
+    "city": "Lansing"
+}
+       
+{
+    "customerid":"C3",
+    "customername":"UserC",
+    "Orders":[
+        {"Orderid":"O2","Course":"AZ-104","Price":50},
+        {"Orderid":"O3","Course":"DP-900","Price":80}
+    ],
+    "city": "Lansing"
+}
+
+// 2. You can run the below queries on the items    
+// SELECT * FROM c.Orders
+// SELECT o.Orderid, o.Course FROM o IN Course.Orders where o.Course='DP-900

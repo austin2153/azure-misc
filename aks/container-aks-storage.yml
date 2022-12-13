@@ -1,0 +1,30 @@
+# 4. Use the following app.yml file as a reference for the deployment of a
+# pod with the use of the disk
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-image
+        volumeMounts:
+          - name: storage
+            mountPath: /mnt/disk1
+        image: nginx
+        ports:
+        - containerPort: 80
+      volumes:
+          - name: storage
+            azureDisk:
+              kind: Managed
+              diskName: clusterdisk
+              diskURI: /subscriptions/be637f67-2af9-4b7b-be2f-18da9b2968cb/resourceGroups/MC_aclab-cont-rg_democluster_eastus/providers/Microsoft.Compute/disks/clusterdisk
