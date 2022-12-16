@@ -1,0 +1,49 @@
+# create a service bus namespace and queue
+$grp = "aclabtestrg"
+$namespace = "aclabsvcbus01"
+$queuename = "aclabsvcbus-queue01"
+$topicname = "aclabavcbus-topic"
+
+az group create --name $grp --location eastus
+az servicebus namespace create --resource-group $grp --name $namespace --location eastus
+az servicebus queue create --resource-group $grp --namespace-name $namespace --name $queuename
+az servicebus namespace authorization-rule keys list `
+    --resource-group $grp `
+    --namespace-name $namespace `
+    --name RootManageSharedAccessKey `
+    --query primaryConnectionString `
+    --output tsv
+
+# create a topic
+az servicebus topic create `
+    --resource-group $grp `
+    --namespace-name $namespace `
+    --name $topicname
+
+# create subscriptions to the topic
+az servicebus topic subscription create `
+    --resource-group $grp `
+    --namespace-name $namespace `
+    --topic-name $topicname `
+    --name S1
+
+az servicebus topic subscription create `
+    --resource-group $grp `
+    --namespace-name $namespace `
+    --topic-name $topicname `
+    --name S2
+
+az servicebus topic subscription create `
+    --resource-group $grp `
+    --namespace-name $namespace `
+    --topic-name $topicname `
+    --name S3
+
+# create some subscription filters
+az servicebus topic subscription rule create `
+    --resource-group $grp `
+    --namespace-name $namespace `
+    --topic-name $topicname `
+    --subscription-name sub01 `
+    # --name MyFilter `
+    # --filter-sql-expression "StoreId IN ('Store1','Store2','Store3')"

@@ -1,0 +1,44 @@
+grp="aclab-test-rg"
+location="eastus"
+vaultname="aclabvault01"
+kekname="aclabkek"
+scalesetname="aclabscaleset01"
+
+# List all soft-deleted key vaults / purge 
+az keyvault list-deleted --resource-type vault
+az keyvault purge -n aclabvault01
+
+# Create a resource group and vault
+az group create --name $grp --location $location
+az keyvault create \
+    --name $vaultname \
+    --resource-group $grp \
+    --location $location
+
+# When creating a key vault by using the Azure CLI, add the "--enabled-for-disk-encryption" flag.
+az keyvault update --name $vaultname --resource-group $grp --enabled-for-disk-encryption "true"
+az keyvault update --name $vaultname --resource-group $grp --enabled-for-deployment "true"
+az keyvault update --name $vaultname --resource-group $grp --enabled-for-template-deployment "true"
+
+# If you want to use a key encryption key (KEK) for an additional layer of security for encryption keys, add a KEK to your key vault.
+az keyvault key create --name $kekname --vault-name $vaultname --kty RSA --size 4096
+
+
+# Create a scale set with attached data disk
+az vmss create \
+  --resource-group $grp \
+  --name $scalesetname \
+  --image UbuntuLTS \
+  --upgrade-policy-mode automatic \
+  --admin-username austin \
+  --generate-ssh-keys \
+  --data-disk-sizes-gb 32
+
+# Prepare the data disk for use with the Custom Script Extension (run in bash)
+az vmss extension set \
+  --publisher Microsoft.Azure.Extensions \
+  --version 2.0 \
+  --name CustomScript \
+  --resource-group aclab-test-rg \
+  --vmss-name aclabscaleset01 \
+  --settings '{"fileUris":["https://raw.githubusercontent.com/Azure-Samples/compute-automation-configurations/master/prepare_vm_disks.sh"],"commandToExecute":"./prepare_vm_disks.sh"}'
